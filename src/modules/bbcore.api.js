@@ -58,6 +58,22 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
         return false;
     }
 
+    // to make asynchronous request
+    var setter;
+    this.promiseFlag = false;
+    this.hasLoaded = new Promise((resolve, reject) => {
+        setter = value => {
+            if (value) {
+                resolve();
+            }
+        };
+    });
+
+    Object.defineProperty(this, 'promiseFlag', {
+        set: setter,
+        get: () => this.hasLoaded
+    });
+
     var requestHeaders = {};
     var inst = this;
     var asyncSetting = true;
@@ -67,13 +83,11 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
 
     var requestToken = this.getOAuthTokenForRequest(),
         legacyJWT = this.getJsonWebToken();
-    if (requestToken && requestToken.length)
-    {
+    if (requestToken && requestToken.length) {
         requestHeaders['Authorization'] = requestToken;
         typeof params.api_key !== 'undefined' && delete params.api_key
     }
-    else if (legacyJWT && legacyJWT.length)
-    {
+    else if (legacyJWT && legacyJWT.length) {
         requestHeaders['BB-JWT'] = legacyJWT;
     }
 
@@ -85,7 +99,7 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
         crossDomain: true,
         data: params,
         headers: requestHeaders,
-        success: function (result) {
+        success: (result) => {
             // set state of bb instance
             // ?? could evaluate the two last statuses and
             inst.lastresponse = result.status;
@@ -104,9 +118,10 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
             else {
                 inst.onError.call(inst, result);
             }
+            this.promiseFlag = true;
         },
         error: function (jqXHR) {
-            var resp = {status: 'unknown', jqXHR: jqXHR};
+            var resp = { status: 'unknown', jqXHR: jqXHR };
             if (typeof jqXHR.responseJSON !== 'undefined') {
                 resp = jqXHR.responseJSON;
             }
