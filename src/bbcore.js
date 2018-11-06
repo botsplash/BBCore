@@ -74,7 +74,7 @@ function BBCore(options) {
     /** @class */
     this.contacts = function () {
     };
-    this.contacts.prototype = Array.prototype;
+    this.contacts.prototype = Object.create({}, Array.prototype);
     this.contacts.constructor = this.contacts;
     /**
      * Adds a Contact {@link BBCore.contact} to Contacts collection
