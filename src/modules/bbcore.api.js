@@ -63,8 +63,10 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
     this.promiseFlag = false;
     this.hasLoaded = new Promise(function(resolve, reject) {
         setter = function(value) {
-            if (value) {
+            if (value.success) {
                 resolve();
+            } else {
+                reject(value.error);
             }
         };
     });
@@ -116,9 +118,10 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
                 success.call(inst, result);
             }
             else {
+                this.promiseFlag = { success: false, error: result };
                 inst.onError.call(inst, result);
             }
-            this.promiseFlag = true;
+            this.promiseFlag = { success: true };
         }).bind(this),
         error: function (jqXHR) {
             var resp = { status: 'unknown', jqXHR: jqXHR };
