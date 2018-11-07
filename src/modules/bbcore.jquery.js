@@ -61,13 +61,18 @@ var jQuery = function (el) {
   return jQueryEl;
 };
 
+var windowEventAttached = false;
+
 jQuery = Object.assign(jQuery, {
   html: function (string) {
     var wrapper = document.createElement('div');
     wrapper.innerHTML = string;
     var scripts = wrapper.getElementsByTagName('script');
-    for (var n = 0; n < scripts.length; n++) {
-      eval(scripts[n].innerHTML); //run script inside div
+    if (!windowEventAttached) {
+      for (var n = 0; n < scripts.length; n++) {
+        eval(scripts[n].innerHTML); //run script inside div
+      }
+      windowEventAttached = true;
     }
     jQueryEl.innerHTML = string;
     return jQueryEl;
