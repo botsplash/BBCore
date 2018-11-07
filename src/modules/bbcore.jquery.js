@@ -30,18 +30,18 @@ function isType(obj, type) {
 }
 
 function normalizeArgs(types, args) {
-  let results = [],
+  var results = [],
     a = [].slice.call(args), //convert arguments object into array
     step = types.length - 1,
     req, skip;
-  for (let x = a.length - 1; x >= 0; x--) {
-    for (let i = step; i >= 0; i--) {
+  for (var x = a.length - 1; x >= 0; x--) {
+    for (var i = step; i >= 0; i--) {
       skip = fals;
       if (types[i].o == tru) {
         //make sure there are enough arguments
         //left over for required types
         req = 0;
-        for (let t = 0; t <= i; t++) {
+        for (var t = 0; t <= i; t++) {
           if (types[t].o == fals) { req++; }
         }
         skip = req > x;
@@ -56,34 +56,33 @@ function normalizeArgs(types, args) {
   return results;
 }
 
-var jQuery = function (el) {
-  var jQueryEl = document.querySelector(el);
-  return jQueryEl;
-};
-
 var windowEventAttached = false;
 
-jQuery = Object.assign(jQuery, {
-  html: function (string) {
+var jQuery = function (el) {
+  var jQueryEl = document.querySelector(el);
+  jQueryEl.html = function(string) {
     var wrapper = document.createElement('div');
     wrapper.innerHTML = string;
     var scripts = wrapper.getElementsByTagName('script');
     if (!windowEventAttached) {
       for (var n = 0; n < scripts.length; n++) {
+        windowEventAttached = true;
         eval(scripts[n].innerHTML); //run script inside div
       }
-      windowEventAttached = true;
     }
     jQueryEl.innerHTML = string;
-    return jQueryEl;
-  },
+  };
+  return jQueryEl;
+};
+
+jQuery = Object.assign(jQuery, {
   ajax: function () {
-    let args = normalizeArgs([
+    var args = normalizeArgs([
       { t: 1, o: tru }, //0: url = string (optional)
       { t: 4, o: tru }, //1: settings = object (optional)
     ], arguments);
     args[1] = getObj(args[1]);
-    let opt = args[1] || { url: args[0] };
+    var opt = args[1] || { url: args[0] };
     opt.async = opt.async || true;
     opt.cache = opt.cache;
     opt.contentType = opt.contentType || 'application/x-www-form-urlencoded; charset=UTF-8';
@@ -98,18 +97,18 @@ jQuery = Object.assign(jQuery, {
       opt.body = form_data;
     }
 
-    fetch(args[0] || opt.url, opt).then((response) => response.json())
-      .then((res) => {
+    fetch(args[0] || opt.url, opt).then(function (response) { return response.json() })
+      .then(function (res) {
         opt.success(res);
       })
-      .catch((err) => {
+      .catch(function (err) {
         opt.error(err);
       });
   },
   extend: function (var_args) {
-    let extended = {};
-    let deep = fals;
-    let i = 0;
+    var extended = {};
+    var deep = fals;
+    var i = 0;
     const length = arguments.length;
 
     // Check if a deep merge
@@ -120,7 +119,7 @@ jQuery = Object.assign(jQuery, {
 
     // Merge the object into the extended object
     const merge = function (obj) {
-      for (let prop in obj) {
+      for (var prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           // If deep merge and property is an object, merge properties
           if (deep && Object.prototype.toString.call(obj[prop]) === '[object Object]') {
@@ -134,7 +133,7 @@ jQuery = Object.assign(jQuery, {
 
     // Loop through each object and conduct a merge
     for (; i < length; i++) {
-      let obj = arguments[i];
+      var obj = arguments[i];
       merge(obj);
     }
 

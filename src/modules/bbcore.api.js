@@ -61,8 +61,8 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
     // to make asynchronous request
     var setter;
     this.promiseFlag = false;
-    this.hasLoaded = new Promise((resolve, reject) => {
-        setter = value => {
+    this.hasLoaded = new Promise(function(resolve, reject) {
+        setter = function(value) {
             if (value) {
                 resolve();
             }
@@ -71,7 +71,7 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
 
     Object.defineProperty(this, 'promiseFlag', {
         set: setter,
-        get: () => this.hasLoaded
+        get: (function() { return this.hasLoaded }).bind(this)
     });
 
     var requestHeaders = {};
@@ -99,7 +99,7 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
         crossDomain: true,
         data: params,
         headers: requestHeaders,
-        success: (result) => {
+        success: (function(result) {
             // set state of bb instance
             // ?? could evaluate the two last statuses and
             inst.lastresponse = result.status;
@@ -119,7 +119,7 @@ BBCore.prototype.sendRequest = function (method, params, success, error) {
                 inst.onError.call(inst, result);
             }
             this.promiseFlag = true;
-        },
+        }).bind(this),
         error: function (jqXHR) {
             var resp = { status: 'unknown', jqXHR: jqXHR };
             if (typeof jqXHR.responseJSON !== 'undefined') {
